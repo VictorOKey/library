@@ -40,6 +40,8 @@ app.MapPost("/users", (User user) =>
         return Results.BadRequest("Email обязателен!");
     if (!user.Email.Contains('@') || !user.Email.Contains('.'))
         return Results.BadRequest("Email некорректен!");
+    if (user.BirthDate == default)
+        return Results.BadRequest("Дата рождения обязательна!");
 
     user.Id = repo.Users.Count + 1;
     repo.Users.Add(user);
@@ -52,10 +54,17 @@ app.MapPost("/loans", async (int bookId, int userId) =>
     var user = repo.Users.FirstOrDefault(u => u.Id == userId);
 
     if (book == null || user == null)
-        return Results.BadRequest("Book or user not found");
+        return Results.BadRequest("Книга или пользователь не найдены");
 
     if (!book.IsAvailable)
-        return Results.BadRequest("Book is not available");
+        return Results.BadRequest("Книга недоступна");
+
+    if (book.AgeLimit.HasValue)
+    {
+        int userAge = GetUserAge(user.BirthDate);
+        if (userAge < book.AgeLimit.Value)
+            return Results.BadRequest($"Книга доступна с {book.AgeLimit}+");
+    }
 
     var loan = new Loan
     {
@@ -78,7 +87,7 @@ app.MapPost("/returns", async (int loanId) =>
 {
     var loan = repo.Loans.FirstOrDefault(l => l.Id == loanId && l.DateReturned == null);
     if (loan == null)
-        return Results.BadRequest("Loan not found or already returned");
+        return Results.BadRequest("Бронь не найдена");
 
     loan.DateReturned = DateTime.UtcNow;
 
@@ -182,6 +191,24 @@ app.MapGet("/stats", async () =>
         return Results.Problem("Go-сервис статистики недоступен", statusCode: 502);
     }
 });
+//к вспомогательному сервису "рекомендации" сортировка книг по возрасту пользователя
+app.MapGet("/recommend", async (int userId) =>
+{
+    var url = $"http://localhost:8082/recommend?userId={userId}";
+    try
+    {
+        var response = await httpClient.GetAsync(url);
+        if (!response.IsSuccessStatusCode)
+            return Results.StatusCode((int)response.StatusCode);
+
+        var content = await response.Content.ReadAsStringAsync();
+        return Results.Content(content, "application/json");
+    }
+    catch
+    {
+        return Results.Problem("Сервис рекомендаций недоступен", statusCode: 502);
+    }
+});
 
 app.Run();
 //для статистики передача данных
@@ -203,4 +230,11 @@ static async Task UpdateStatsAsync(HttpClient httpClient, LibraryRepository repo
         await httpClient.PostAsJsonAsync("http://localhost:8081/stats/update", stats);
     }
     catch { }
+}
+static int GetUserAge(DateTime birthDate)
+{
+    var today = DateTime.Today;
+    var age = today.Year - birthDate.Year;
+    if (birthDate.Date > today.AddYears(-age)) age--;
+    return age;
 }

@@ -64,3 +64,4 @@ C:\Users\User\Desktop\library\DotnetCoreLibrary\obj\Debug\net8.0\refint\DotnetCo
 C:\Users\User\Desktop\library\DotnetCoreLibrary\obj\Debug\net8.0\DotnetCoreLibrary.pdb
 C:\Users\User\Desktop\library\DotnetCoreLibrary\obj\Debug\net8.0\DotnetCoreLibrary.genruntimeconfig.cache
 C:\Users\User\Desktop\library\DotnetCoreLibrary\obj\Debug\net8.0\ref\DotnetCoreLibrary.dll
+C:\Users\User\Desktop\library\DotnetCoreLibrary\obj\Debug\net8.0\DotnetCoreLibrary.sourcelink.json
