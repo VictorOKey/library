@@ -45,7 +45,7 @@ func main() {
 			return
 		}
 
-		println("Ответ dotnetcorelibrary:", string(body)) // Вот тут мы увидим, что реально приходит!
+		println("Ответ dotnetcorelibrary:", string(body))
 
 		var books []Book
 		if err := json.Unmarshal(body, &books); err != nil {
