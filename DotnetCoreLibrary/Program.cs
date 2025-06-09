@@ -9,11 +9,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 var repo = new LibraryRepository();
 var httpClient = new HttpClient();
@@ -156,7 +153,7 @@ app.MapGet("/search", async (string? title, string? author) =>
         query.Add($"title={Uri.EscapeDataString(title)}");
     if (!string.IsNullOrWhiteSpace(author))
         query.Add($"author={Uri.EscapeDataString(author)}");
-    var url = "http://localhost:8080/books/search";
+    var url = "http://go-search-service:8080/books/search";
     if (query.Count > 0)
         url += "?" + string.Join("&", query);
 
@@ -179,7 +176,7 @@ app.MapGet("/stats", async () =>
 {
     try
     {
-        var response = await httpClient.GetAsync("http://localhost:8081/stats");
+        var response = await httpClient.GetAsync("http://go-stats-service:8081/stats");
         if (!response.IsSuccessStatusCode)
             return Results.StatusCode((int)response.StatusCode);
 
@@ -194,7 +191,7 @@ app.MapGet("/stats", async () =>
 //к вспомогательному сервису "рекомендации" сортировка книг по возрасту пользователя
 app.MapGet("/recommend", async (int userId) =>
 {
-    var url = $"http://localhost:8082/recommend?userId={userId}";
+    var url = $"http://go-recommend-service/recommend?userId={userId}";
     try
     {
         var response = await httpClient.GetAsync(url);
@@ -227,7 +224,7 @@ static async Task UpdateStatsAsync(HttpClient httpClient, LibraryRepository repo
 
     try
     {
-        await httpClient.PostAsJsonAsync("http://localhost:8081/stats/update", stats);
+        await httpClient.PostAsJsonAsync("http://go-stats-service:8081/stats/update", stats);
     }
     catch { }
 }

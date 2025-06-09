@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dotnetcorelibrary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dotnetcorelibrary
+  template:
+    metadata:
+      labels:
+        app: dotnetcorelibrary
+    spec:
+      containers:
+      - name: dotnetcorelibrary
+        image: dotnetcorelibrary:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5096
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dotnetcorelibrary
+spec:
+  selector:
+    app: dotnetcorelibrary
+  ports:
+    - protocol: TCP
+      port: 5096
+      targetPort: 5096
+  type: ClusterIP
+
+
+

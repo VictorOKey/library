@@ -35,7 +35,7 @@ func main() {
 			return
 		}
 
-		userResp, err := http.Get("http://localhost:5096/users")
+		userResp, err := http.Get("http://dotnetcorelibrary:5096/users")
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Ошибка при получении пользователей"})
 			return
@@ -65,7 +65,7 @@ func main() {
 		}
 		age := calculateAge(birthTime)
 
-		booksResp, err := http.Get("http://localhost:5096/books")
+		booksResp, err := http.Get("http://dotnetcorelibrary:5096/books")
 		if err != nil {
 			c.JSON(500, gin.H{"error": "Ошибка при получении книг"})
 			return

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-search-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-search-service
+  template:
+    metadata:
+      labels:
+        app: go-search-service
+    spec:
+      containers:
+      - name: go-search-service
+        image: go-search-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-search-service
+spec:
+  selector:
+    app: go-search-service
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP

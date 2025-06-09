@@ -24,18 +24,33 @@ func main() {
 		title := c.Query("title")
 		author := c.Query("author")
 
-		// Делаем запрос к основному .NET сервису (замени порт если нужен)
-		resp, err := http.Get("http://localhost:5096/books")
+		resp, err := http.Get("http://dotnetcorelibrary:5096/books")
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Не удалось получить список книг из основного сервиса"})
+			println("Ошибка при запросе к dotnetcorelibrary:", err.Error())
+			c.JSON(500, gin.H{"error": "Не удалось получить список книг из основного сервиса", "details": err.Error()})
 			return
 		}
 		defer resp.Body.Close()
 
-		body, _ := ioutil.ReadAll(resp.Body)
+		if resp.StatusCode != 200 {
+			println("dotnetcorelibrary не вернул 200, а:", resp.Status)
+			c.JSON(500, gin.H{"error": "dotnetcorelibrary не вернул 200", "status": resp.Status})
+			return
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			println("Ошибка чтения тела:", err.Error())
+			c.JSON(500, gin.H{"error": "Ошибка чтения тела ответа", "details": err.Error()})
+			return
+		}
+
+		println("Ответ dotnetcorelibrary:", string(body)) // Вот тут мы увидим, что реально приходит!
+
 		var books []Book
 		if err := json.Unmarshal(body, &books); err != nil {
-			c.JSON(500, gin.H{"error": "Ошибка разбора JSON"})
+			println("Ошибка разбора JSON:", err.Error(), "Тело:", string(body))
+			c.JSON(500, gin.H{"error": "Ошибка разбора JSON", "details": err.Error(), "raw": string(body)})
 			return
 		}
 

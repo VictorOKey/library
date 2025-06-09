@@ -24,7 +24,6 @@ func main() {
 		c.JSON(200, stats)
 	})
 
-	// Обновление статистики (например, при выдаче или возврате книги)
 	r.POST("/stats/update", func(c *gin.Context) {
 		var newStats Stats
 		if err := c.ShouldBindJSON(&newStats); err != nil {
@@ -37,5 +36,5 @@ func main() {
 		c.JSON(200, stats)
 	})
 
-	r.Run(":8081") // Например, сервис будет слушать порт 8081
+	r.Run(":8081")
 }
